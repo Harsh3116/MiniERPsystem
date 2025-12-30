@@ -1,0 +1,25 @@
+﻿@model List<MiniERPsystem.Models.ActivityLog>
+
+<h3>Activity Logs</h3>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>User</th>
+            <th>Action</th>
+            <th>IP</th>
+            <th>Date</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var log in Model)
+        {
+            <tr>
+                <td>@log.UserEmail</td>
+                <td>@log.Action</td>
+                <td>@log.IpAddress</td>
+                <td>@log.CreatedAt</td>
+            </tr>
+        }
+    </tbody>
+</table>

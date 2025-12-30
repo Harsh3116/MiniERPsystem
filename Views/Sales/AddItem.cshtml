@@ -1,0 +1,62 @@
+﻿@{
+    ViewData["Title"] = "Add Items";
+}
+<div class="alert alert-info">
+    <strong>Step 2 of 4:</strong> Add products to the sale.
+</div>
+
+<h3>Add Items to Sale</h3>
+
+<form asp-action="AddItem" method="post">
+
+    <input type="hidden" name="SaleId" value="@ViewBag.SaleId" />
+
+    <div class="mb-3">
+        <label>Product</label>
+        <select name="ProductId" class="form-control">
+            @foreach (var p in ViewBag.Products)
+            {
+                <option value="@p.Id">
+                    @p.ProductName
+                </option>
+            }
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label>Quantity</label>
+        <input type="number" name="Quantity" class="form-control" />
+    </div>
+
+    <button type="submit" class="btn btn-success">
+        Add Item
+    </button>
+
+</form>
+
+<a asp-action="Details" asp-route-id="@ViewBag.SaleId"
+   class="btn btn-info mt-3">
+    Finish Sale
+</a>
+<div class="mt-4 d-flex gap-2">
+    <a href="/Sales/Details/@ViewBag.SaleId"
+       class="btn btn-success">
+        Review Sale
+    </a>
+
+    <a href="/Sales/Create"
+       class="btn btn-outline-secondary">
+        Cancel & New Sale
+    </a>
+</div>
+
+</div>
+<script>
+    document.querySelector("select").focus();
+</script>
+<br />
+
+<div class="progress mb-3">
+    <div class="progress-bar bg-warning" style="width:66%">
+        Step 2 of 3 – Add Items
+    </div>

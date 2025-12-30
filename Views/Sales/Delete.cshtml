@@ -1,0 +1,17 @@
+﻿@model MiniERPsystem.Models.Sale
+
+<h3>Delete Sale</h3>
+
+<div class="alert alert-warning">
+    <strong>Warning:</strong> This will permanently delete the sale and restore stock.
+</div>
+
+<p><strong>Customer:</strong> @Model.CustomerName</p>
+<p><strong>Date:</strong> @Model.SaleDate.ToShortDateString()</p>
+<p><strong>Total:</strong> ₹ @Model.TotalAmount</p>
+
+<form asp-action="DeleteConfirmed" method="post">
+    <input type="hidden" asp-for="Id" />
+    <button type="submit" class="btn btn-danger">Delete</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+</form>

@@ -1,0 +1,47 @@
+﻿@model MiniERPsystem.Models.Customer
+
+<h3>Sales History — @Model.CustomerName</h3>
+
+<a asp-action="Index" class="btn btn-secondary mb-3">
+    Back to Customers
+</a>
+
+<table class="table table-bordered">
+    <thead class="table-dark">
+        <tr>
+            <th>Sale ID</th>
+            <th>Date</th>
+            <th>Total Amount (₹)</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model.Sales != null && Model.Sales.Any())
+        {
+            foreach (var sale in Model.Sales)
+            {
+                <tr>
+                    <td>@sale.Id</td>
+                    <td>@sale.SaleDate.ToShortDateString()</td>
+                    <td>₹ @sale.TotalAmount</td>
+                    <td>
+                        <a asp-controller="Sales"
+                           asp-action="Details"
+                           asp-route-id="@sale.Id"
+                           class="btn btn-sm btn-info">
+                            View
+                        </a>
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="4" class="text-center">
+                    No sales for this customer.
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

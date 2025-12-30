@@ -1,0 +1,67 @@
+﻿@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<h3 class="mb-4">Dashboard</h3>
+
+<div class="row mb-4">
+
+    <div class="col-md-3">
+        <div class="card text-white bg-primary">
+            <div class="card-body">
+                <h6>Total Sales</h6>
+                <h4>₹ @ViewBag.TotalSalesAmount</h4>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card text-white bg-success">
+            <div class="card-body">
+                <h6>Total Orders</h6>
+                <h4>@ViewBag.TotalSalesCount</h4>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card text-white bg-warning">
+            <div class="card-body">
+                <h6>Today’s Sales</h6>
+                <h4>₹ @ViewBag.TodaysSalesAmount</h4>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<hr />
+
+<h5>Low Stock Products</h5>
+
+@if (((List<MiniERPsystem.Models.Product>)ViewBag.LowStockProducts).Any())
+{
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>Stock</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var p in ViewBag.LowStockProducts)
+            {
+                <tr class="table-danger">
+                    <td>@p.ProductName</td>
+                    <td>@p.StockQuantity</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <div class="alert alert-success">
+        All products have sufficient stock.
+    </div>
+}

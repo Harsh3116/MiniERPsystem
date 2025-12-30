@@ -1,0 +1,54 @@
+﻿@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<h2 class="mb-4">Dashboard Overview</h2>
+
+<div class="d-flex justify-content-end mb-3">
+    <a href="/Account/Logout" class="btn btn-outline-danger btn-sm">
+        Logout
+    </a>
+</div>
+<div class="alert alert-info">
+    @ViewBag.SystemMessage
+</div>
+
+<div class="row g-4">
+
+    <div class="col-md-3">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h6>Total Sales</h6>
+                <h4>₹ @ViewBag.TotalSales</h4>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h6>Monthly Revenue</h6>
+                <h4>₹ @ViewBag.MonthlyRevenue</h4>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h6>Low Stock Items</h6>
+                <h4>@ViewBag.LowStockCount</h4>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h6>Total Customers</h6>
+                <h4>@ViewBag.TotalCustomers</h4>
+            </div>
+        </div>
+    </div>
+
+</div>

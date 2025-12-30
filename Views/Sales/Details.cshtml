@@ -1,0 +1,69 @@
+﻿@model Sale
+
+
+<h2>Sale Details</h2>
+<div class="alert alert-warning">
+    <strong>Step 3 of 4:</strong> Review the sale details before finishing.
+</div>
+<p>
+    <strong>Sale Date:</strong> @Model.SaleDate.ToShortDateString()
+</p>
+
+<table border="1" cellpadding="5">
+    <tr>
+        <th>Product</th>
+        <th>Price</th>
+        <th>Quantity</th>
+        <th>Amount</th>
+    </tr>
+
+    @foreach (var item in Model.SaleItems)
+    {
+        <tr>
+            <td>@item.Product.ProductName</td>
+            <td>@item.Price</td>
+            <td>@item.Quantity</td>
+            <td>@(item.Price* item.Quantity)</td>
+        </tr>
+    }
+</table>
+
+<br />
+
+<h3>Total Amount: @Model.TotalAmount</h3>
+<div class="mt-4 d-flex gap-2">
+    <a href="/Reports/ExportDateRangeSalesPdf"
+       class="btn btn-danger">
+        Print / Export PDF
+    </a>
+
+    <a href="/Sales/Create"
+       class="btn btn-primary">
+        Create New Sale
+    </a>
+</div>
+
+</div>
+<div class="mt-4 d-flex gap-2">
+    <a href="/Reports/ExportDateRangeSalesPdf"
+       class="btn btn-danger">
+        Print Invoice (PDF)
+    </a>
+
+    <a href="/Sales/Create"
+       class="btn btn-primary">
+        New Sale
+    </a>
+
+    <a href="/Sales"
+       class="btn btn-outline-secondary">
+        Back to Sales
+    </a>
+</div>
+<br />
+
+<div class="progress mb-3">
+    <div class="progress-bar bg-success" style="width:100%">
+        Step 3 of 3 – Review & Finish
+    </div>
+ </div>

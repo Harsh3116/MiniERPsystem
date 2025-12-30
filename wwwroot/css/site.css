@@ -1,0 +1,153 @@
+html {
+  font-size: 14px;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+.btn:hover {
+    transform: scale(1.03);
+    transition: 0.2s;
+}
+
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+  margin-bottom: 60px;
+}
+
+.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
+  color: var(--bs-secondary-color);
+  text-align: end;
+}
+
+.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
+  text-align: start;
+}
+/* NAVBAR */
+.navbar {
+    height: 55px;
+    background-color: #0F172A;
+    padding: 0 20px;
+}
+
+
+
+
+
+
+.btn {
+    transition: transform 0.15s ease-in-out;
+}
+
+    .btn:hover {
+        transform: scale(1.03);
+    }
+
+.card
+{
+    border-radius: 12px;
+}
+
+/* NAVBAR */
+.navbar {
+    height: 55px;
+    background-color: #0F172A;
+    padding: 0 20px;
+}
+
+/* SIDEBAR */
+.sidebar {
+    position: fixed;
+    top: 55px;
+    left: 0;
+    width: 220px;
+    height: calc(100vh - 55px);
+    background-color: #1E293B;
+    padding-top: 15px;
+    transition: width 0.3s ease;
+    overflow-x: hidden;
+}
+
+    .sidebar a {
+        display: block;
+        padding: 12px 20px;
+        color: #CBD5E1;
+        text-decoration: none;
+    }
+
+        .sidebar a:hover {
+            background-color: #334155;
+            color: white;
+        }
+
+    /* COLLAPSED SIDEBAR */
+    .sidebar.collapsed {
+        width: 70px;
+    }
+
+        .sidebar.collapsed span {
+            display: none;
+        }
+
+/* MAIN CONTENT */
+.content {
+    margin-top: 55px;
+    margin-left: 220px;
+    padding: 20px;
+    background-color: #F8FAFC;
+    min-height: 100vh;
+    transition: margin-left 0.3s ease;
+}
+
+    .content.expanded {
+        margin-left: 70px;
+    }
+
+/* ACTIVE LINK */
+.sidebar .nav-link.active {
+    background-color: #0d6efd;
+    color: #fff;
+    font-weight: 600;
+    border-radius: 6px;
+}
+
+/* HOVER EFFECT */
+.sidebar .nav-link {
+    transition: all 0.2s ease-in-out;
+}
+
+    .sidebar .nav-link:hover {
+        padding-left: 26px;
+    }
+
+/* BUTTON POLISH */
+.btn {
+    transition: transform 0.15s ease-in-out;
+}
+
+    .btn:hover {
+        transform: scale(1.03);
+    }
+
+.card {
+    border-radius: 12px;
+}
+
+body {
+    background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+}
+
+.card {
+    border-radius: 14px;
+}

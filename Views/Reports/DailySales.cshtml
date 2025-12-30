@@ -1,0 +1,81 @@
+﻿@model List<MiniERPsystem.Models.DailySalesReport>
+
+@{
+    ViewData["Title"] = "Daily Sales Report";
+}
+
+<h3>Daily Sales Report</h3>
+
+<table class="table table-bordered">
+    <thead class="table-dark">
+        <tr>
+            <th>Date</th>
+            <th>Total Sales (₹)</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model.Any())
+        {
+            foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.Date.ToShortDateString()</td>
+                    <td>₹ @item.TotalAmount</td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="2" class="text-center">
+                    No sales found.
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<hr />
+
+<h4>Daily Sales Chart</h4>
+
+<canvas id="dailySalesChart" width="900" height="400"></canvas>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const labels = @Html.Raw(
+                        System.Text.Json.JsonSerializer.Serialize(
+                                ViewBag.Labels ?? new List<string>()
+                        )
+                );
+
+        const values = @Html.Raw(
+                        System.Text.Json.JsonSerializer.Serialize(
+                                ViewBag.Amounts ?? new List<decimal>()
+                        )
+                );
+
+        if (labels.length === 0) return;
+
+        const ctx = document.getElementById("dailySalesChart").getContext("2d");
+
+        new Chart(ctx, {
+            type: "bar",
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: "Sales (₹)",
+                    data: values,
+                    backgroundColor: "rgba(54, 162, 235, 0.6)"
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+    });
+</script>

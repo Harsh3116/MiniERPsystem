@@ -1,0 +1,252 @@
+﻿@using Microsoft.AspNetCore.Http
+@{
+    var userRole = Context.Session.GetString("UserRole")?.Trim();
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <style>
+        .nav-link.disabled {
+            color: #9ca3af !important; /* grey */
+            pointer-events: none; /* disable click */
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+    </style>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - MiniERPsystem</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/MiniERPsystem.styles.css" asp-append-version="true" />
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+
+    <!-- JS -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+
+
+<body>
+    @if (Context.Session.GetString("UserName") != null)
+{
+    <!-- TOP NAVBAR -->
+    <nav class="navbar navbar-dark fixed-top bg-dark px-3">
+        <button class="btn btn-outline-light me-3" id="sidebarToggle">☰</button>
+        <span class="navbar-brand">Mini ERP</span>
+        <span class="text-white">
+            Welcome, @Context.Session.GetString("UserName")
+        </span>
+    </nav>
+        <span class="text-warning ms-3">
+            ROLE: @userRole
+        </span>
+
+
+    <!-- SIDEBAR -->
+    <div class="sidebar pt-5">
+
+        <!-- DASHBOARD -->
+            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Dashboard" ? "active" : "")"
+               asp-controller="Dashboard"
+               asp-action="Index">
+                <span>Dashboard</span>
+            </a>
+
+
+
+        <!-- SALES -->
+        <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Sales" ? "active" : "")"
+           data-bs-toggle="collapse"
+           href="#salesMenu">
+            <i class="bi bi-cart-check me-2"></i>
+            <span>Sales</span>
+        </a>
+
+        <div class="collapse ms-3 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Sales" ? "show" : "")"
+             id="salesMenu">
+
+            <a class="nav-link"
+               asp-controller="Sales"
+               asp-action="Create">
+                Create Sale
+            </a>
+
+            <a class="nav-link"
+               asp-controller="Sales"
+               asp-action="Index">
+                View Sales
+            </a>
+        </div>
+
+
+
+        <!-- INVENTORY -->
+        <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Products" ? "active" : "")"
+           data-bs-toggle="collapse"
+           href="#inventoryMenu">
+            <i class="bi bi-box-seam me-2"></i> 
+            <span>Inventory</span>
+        </a>
+
+            <div class="collapse ms-3 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Products" ? "show" : "")"
+                 id="inventoryMenu">
+
+                @if (userRole == "Admin")
+                {
+                    <a class="nav-link"
+                       asp-controller="Products"
+                       asp-action="Create">
+                        Add Product
+                    </a>
+                }
+                else
+                {
+                    <a class="nav-link disabled">
+                        Add Product
+                    </a>
+                }
+
+
+                <a class="nav-link"
+                   asp-controller="Products"
+                   asp-action="Index">
+                    View Products
+                </a>
+                @if (string.Equals(userRole, "Admin", StringComparison.OrdinalIgnoreCase))
+                {
+                    <a class="nav-link"
+                       asp-controller="Products"
+                       asp-action="Deleted">
+                        <i class="bi bi-arrow-counterclockwise me-2"></i>
+                        <span>Deleted Products</span>
+                    </a>
+                }
+            </div>
+
+
+
+             @if (userRole == "Admin")
+             {
+              <!-- CUSTOMERS (FUTURE READY) -->
+              <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Customers" ? "active" : "")"
+                asp-controller="Customers"
+                asp-action="Index">
+                <i class="bi bi-people me-2"></i> 
+                <span>Customers</span>
+             </a>
+             }
+            @if (userRole == "Admin")
+            {
+                <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Account" ? "active" : "")"
+                   asp-controller="Account"
+                   asp-action="CreateUser">
+                    <i class="bi bi-person-plus me-2"></i>
+                    <span>Create User</span>
+                </a>
+            }
+            else
+            {
+                <a class="nav-link disabled">
+                    <i class="bi bi-person-plus me-2"></i>
+                    <span>Create User</span>
+                </a>
+            }
+
+            @if (string.Equals(userRole, "Admin", StringComparison.OrdinalIgnoreCase))
+            {
+                <a class="nav-link"
+                   asp-controller="Account"
+                   asp-action="Users">
+                    <i class="bi bi-people-fill me-2"></i>
+                    <span>Users</span>
+                </a>
+            }
+            @if (string.Equals(userRole, "Admin", StringComparison.OrdinalIgnoreCase))
+            {
+                <a class="nav-link"
+                   asp-controller="Account"
+                   asp-action="ActivityLogs">
+                    Activity Logs
+                </a>
+            }
+
+
+            @if (userRole == "Admin")
+            {
+                <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Reports" ? "active" : "")"
+                   data-bs-toggle="collapse"
+                   href="#reportsMenu">
+                    <i class="bi bi-graph-up me-2"></i>
+                    <span>Reports</span>
+                </a>
+                <div class="collapse ms-3 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Reports" ? "show" : "")"
+                     id="reportsMenu">
+
+                    @if (userRole == "Admin")
+                    {
+                        <a class="nav-link"
+                           asp-controller="Reports"
+                           asp-action="DailySales">
+                            Daily Sales
+                        </a>
+
+                        <a class="nav-link"
+                           asp-controller="Reports"
+                           asp-action="MonthlySales">
+                            Monthly Sales
+                        </a>
+
+                        <a class="nav-link"
+                           asp-controller="Reports"
+                           asp-action="DateRangeSales">
+                            Date Range Report
+                        </a>
+                    }
+                    else
+                    {
+                        <a class="nav-link disabled">Daily Sales</a>
+                        <a class="nav-link disabled">Monthly Sales</a>
+                        <a class="nav-link disabled">Date Range Report</a>
+                    }
+
+                </div>
+
+            }
+            else
+            {
+                <a class="nav-link disabled">
+                    <i class="bi bi-graph-up me-2"></i>
+                    <span>Reports</span>
+                </a>
+            }
+        <!-- LOGOUT -->
+            <a asp-controller="Account"
+               asp-action="Logout"
+               class="btn btn-outline-danger btn-sm">
+                Logout
+            </a>
+
+    </div>
+}
+    <!-- MAIN CONTENT -->
+    <main class="content pt-5">
+        @RenderBody()
+    </main>
+
+    @RenderSection("Scripts", required: false)
+    <script>
+        document.getElementById("sidebarToggle")
+            .addEventListener("click", function () {
+                document.querySelector(".sidebar")
+                    .classList.toggle("collapsed");
+                document.querySelector(".content")
+                    .classList.toggle("expanded");
+            });
+    </script>
+
+</body>
+</html>

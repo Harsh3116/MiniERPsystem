@@ -1,0 +1,38 @@
+﻿@model MiniERPsystem.Models.Sale
+
+@{
+    ViewData["Title"] = "Create Sale";
+}
+
+<h3>Create Sale</h3>
+
+<form asp-action="Create" method="post">
+
+    <div class="mb-3">
+        <label class="form-label">Customer Name</label>
+        <input asp-for="CustomerName" class="form-control" />
+        <span asp-validation-for="CustomerName" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Sale Date</label>
+        <input asp-for="SaleDate" type="date" class="form-control" />
+        <span asp-validation-for="SaleDate" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">
+        Create Sale
+    </button>
+
+    <a asp-action="Index" class="btn btn-secondary">
+        Cancel
+    </a>
+
+</form>
+<br />
+
+<div class="progress mb-3">
+    <div class="progress-bar bg-primary" style="width:33%">
+        Step 1 of 3 – Create Sale
+    </div>
+</div>

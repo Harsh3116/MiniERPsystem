@@ -1,0 +1,51 @@
+﻿@model List<MiniERPsystem.Models.MonthlySalesReport>
+
+<h3>Monthly Sales Report</h3>
+
+<table class="table table-bordered">
+    <thead class="table-dark">
+        <tr>
+            <th>Month</th>
+            <th>Total Sales (₹)</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Month / @item.Year</td>
+                <td>₹ @item.TotalAmount</td>
+            </tr>
+        }
+    </tbody>
+</table>
+<hr />
+
+<h4>Monthly Sales Chart</h4>
+
+<canvas id="monthlySalesChart" height="100"></canvas>
+
+<script>
+    const monthLabels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ViewBag.Labels));
+    const monthAmounts = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ViewBag.Amounts));
+
+    const ctxMonth = document.getElementById('monthlySalesChart').getContext('2d');
+
+    new Chart(ctxMonth, {
+        type: 'bar',
+        data: {
+            labels: monthLabels,
+            datasets: [{
+                label: 'Monthly Sales (₹)',
+                data: monthAmounts,
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+</script>

@@ -1,0 +1,36 @@
+﻿@model List<MiniERPsystem.Models.Customer>
+
+<h3>Customers</h3>
+
+<a asp-action="Create" class="btn btn-primary mb-3">
+    + Add Customer
+</a>
+
+
+<table class="table table-bordered">
+    <thead class="table-dark">
+        <tr>
+            <th>Name</th>
+            <th>Phone</th>
+            <th>Email</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var c in Model)
+        {
+            <tr>
+                <td>@c.CustomerName</td>
+                <td>@c.Phone</td>
+                <td>@c.Email</td>
+                <td>
+                    <a asp-action="SalesHistory"
+                       asp-route-id="@c.Id"
+                       class="btn btn-sm btn-primary">
+                        View Sales
+                    </a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

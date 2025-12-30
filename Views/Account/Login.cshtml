@@ -1,0 +1,106 @@
+﻿@{
+    ViewData["Title"] = "Login - Mini ERP";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Mini ERP | Login</title>
+    <link rel="stylesheet" href="~/css/login.css" />
+</head>
+<body>
+
+    <div class="login-wrapper">
+
+        <!-- LEFT PANEL -->
+        <div class="login-info">
+            <h1>Mini ERP</h1>
+            <p class="tagline">Simple. Smart. Business Ready.</p>
+
+            <ul class="features">
+                <li>✔ Sales & Inventory Management</li>
+                <li>✔ User & Role Based Access</li>
+                <li>✔ Reports & Analytics</li>
+                <li>✔ Secure Session Handling</li>
+            </ul>
+
+            <p class="footer-note">Academic Project | ASP.NET Core MVC</p>
+        </div>
+
+        <!-- RIGHT PANEL -->
+        <div class="login-card">
+            <h2>Login</h2>
+            @if (ViewBag.Error != null)
+            {
+                <p style="color:red">@ViewBag.Error</p>
+            }
+            <form asp-action="Login" asp-controller="Account"  method="post">
+                <div class="input-group">
+                    <label>Email</label>
+                    <input type="email"
+                           name="email"
+                           value="@ViewBag.RememberedUser"
+                           required />
+                </div>
+
+
+                <div class="input-group">
+                    <label>Password</label>
+                    <input type="password" name="password" required />
+                </div>
+                <div class="role-card-group">
+                    <label class="role-label">Select Role</label>
+
+                    <div class="role-cards">
+                        <div class="role-card" data-role="Admin">
+                            
+                            <div class="role-title">Admin</div>
+                            <div class="role-desc">Full system access</div>
+                        </div>
+
+                        <div class="role-card" data-role="Staff">
+                            
+                            <div class="role-title">Staff</div>
+                            <div class="role-desc">Sales & inventory access</div>
+                        </div>
+                    </div>
+
+                    <!-- Hidden input sent to controller -->
+                    <input type="hidden" name="role" id="selectedRole" required />
+                </div>
+
+
+                <div style="margin-bottom:15px;">
+                    <input type="checkbox" name="rememberMe" />
+                    <label>Remember Me</label>
+                </div>
+
+
+                <button type="submit">Sign In</button>
+            </form>
+        </div>
+
+    </div>
+    <script>
+        const roleCards = document.querySelectorAll(".role-card");
+        const roleInput = document.getElementById("selectedRole");
+
+        roleCards.forEach(card => {
+            card.addEventListener("click", () => {
+
+                roleCards.forEach(c => {
+                    c.classList.remove("selected");
+                    c.style.animation = "none"; // reset animation
+                });
+
+                card.classList.add("selected");
+                roleInput.value = card.dataset.role;
+            });
+        });
+    </script>
+
+
+</body>
+</html>
