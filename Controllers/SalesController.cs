@@ -14,9 +14,26 @@ namespace MiniERPsystem.Controllers
       : base(context)
         {
         }
-        public IActionResult Index()
+        public IActionResult Index(string? search, int page = 1)
         {
-            var sales = _context.Sales.ToList();
+            int pageSize = 10;
+            var query = _context.Sales.AsQueryable();
+
+            if (!string.IsNullOrEmpty(search))
+                query = query.Where(s => s.CustomerName.Contains(search));
+
+            int total = query.Count();
+
+            var sales = query
+                .OrderByDescending(s => s.SaleDate)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalPages = (int)Math.Ceiling(total / (double)pageSize);
+            ViewBag.Search = search;
+
             return View(sales);
         }
         [HttpGet]
@@ -56,6 +73,7 @@ namespace MiniERPsystem.Controllers
             _context.SaveChanges();
 
             LogActivity($"Created sale for customer: {existingCustomer.CustomerName}");
+            TempData["Success"] = $"Sale created for {existingCustomer.CustomerName}.";
 
             return RedirectToAction("AddItem", new { saleId = sale.Id });
         }
@@ -162,7 +180,8 @@ namespace MiniERPsystem.Controllers
             // 1. Restore stock
             foreach (var item in sale.SaleItems)
             {
-                item.Product.StockQuantity += item.Quantity;
+                if (item.Product != null)
+                    item.Product.StockQuantity += item.Quantity;
             }
 
             // 2. Remove sale items
@@ -170,8 +189,9 @@ namespace MiniERPsystem.Controllers
 
             // 3. Remove sale
             _context.Sales.Remove(sale);
-
             _context.SaveChanges();
+
+            TempData["Success"] = "Sale deleted and stock restored.";
 
             return RedirectToAction("Index");
         }

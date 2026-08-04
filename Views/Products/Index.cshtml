@@ -83,8 +83,8 @@ else
     @foreach (var item in Model)
     {
         <tr class="@(item.StockQuantity <= 5 ? "table-danger" : "")">
-            <td>@item.ProductName</td>
-            <td>@item.Price</td>
+            <td class="fw-semibold">@item.ProductName</td>
+            <td>&#8377;&thinsp;@item.Price.ToString("N0")</td>
             <td>
                 @item.StockQuantity
                 @if (item.StockQuantity <= 5)
@@ -93,7 +93,31 @@ else
                 }
             </td>
             <td>
-                <!-- keep your existing action buttons here -->
+                @if (userRole == "Admin")
+                {
+                    <a asp-action="Edit" asp-route-id="@item.Id"
+                       class="btn btn-sm btn-outline-primary me-1">
+                        <i class="bi bi-pencil"></i>
+                    </a>
+                    <a asp-action="Details" asp-route-id="@item.Id"
+                       class="btn btn-sm btn-outline-secondary me-1">
+                        <i class="bi bi-eye"></i>
+                    </a>
+                    <form asp-action="Delete" asp-route-id="@item.Id" method="post" class="d-inline"
+                          onsubmit="return confirm('Move &quot;@item.ProductName&quot; to deleted?')">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </form>
+                }
+                else
+                {
+                    <a asp-action="Details" asp-route-id="@item.Id"
+                       class="btn btn-sm btn-outline-secondary">
+                        <i class="bi bi-eye"></i>
+                    </a>
+                }
             </td>
         </tr>
     }

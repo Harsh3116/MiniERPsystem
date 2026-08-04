@@ -12,9 +12,29 @@ namespace MiniERPsystem.Controllers
     : base(context)
         {
         }
-        public IActionResult Index()
+        public IActionResult Index(string? search, int page = 1)
         {
-            var customers = _context.Customers.ToList();
+            int pageSize = 10;
+            var query = _context.Customers.AsQueryable();
+
+            if (!string.IsNullOrEmpty(search))
+                query = query.Where(c => c.CustomerName.Contains(search) ||
+                                         (c.Phone != null && c.Phone.Contains(search)) ||
+                                         (c.Email != null && c.Email.Contains(search)));
+
+            int total = query.Count();
+
+            var customers = query
+                .OrderBy(c => c.CustomerName)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalPages = (int)Math.Ceiling(total / (double)pageSize);
+            ViewBag.Search = search;
+            ViewBag.TotalCount = total;
+
             return View(customers);
         }
         
@@ -51,6 +71,7 @@ namespace MiniERPsystem.Controllers
             _context.Customers.Add(customer);
             _context.SaveChanges();
 
+            TempData["Success"] = $"Customer \"{customer.CustomerName}\" added successfully.";
             return RedirectToAction(nameof(Index));
         }
 

@@ -1,54 +1,178 @@
-﻿@{
+﻿@using MiniERPsystem.Models
+@{
     ViewData["Title"] = "Dashboard";
+    var recentSales = ViewBag.RecentSales as List<Sale> ?? new List<Sale>();
+
+    var salesCount     = (int)(ViewBag.TotalSalesCount    ?? 0);
+    var lowStock       = (int)(ViewBag.LowStockCount      ?? 0);
+    var totalProducts  = (int)(ViewBag.TotalProducts      ?? 0);
+    var totalCustomers = (int)(ViewBag.TotalCustomers     ?? 0);
+    var isLowStock     = lowStock > 0;
 }
 
-<h2 class="mb-4">Dashboard Overview</h2>
-
-<div class="d-flex justify-content-end mb-3">
-    <a href="/Account/Logout" class="btn btn-outline-danger btn-sm">
-        Logout
+<!-- Page header -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h4 class="mb-0 fw-semibold">Dashboard</h4>
+        <small class="text-muted">@DateTime.Now.ToString("dddd, dd MMMM yyyy")</small>
+    </div>
+    <a asp-controller="Sales" asp-action="Create" class="btn btn-primary btn-sm">
+        <i class="bi bi-plus-lg me-1"></i> New Sale
     </a>
 </div>
-<div class="alert alert-info">
-    @ViewBag.SystemMessage
+
+<!-- System Alert -->
+<div class="alert @(isLowStock ? "alert-warning" : "alert-success") border-0 rounded-3 d-flex align-items-center gap-2 mb-4 py-2 px-3"
+     role="alert" style="font-size:.92rem">
+    <i class="bi @(isLowStock ? "bi-exclamation-triangle-fill" : "bi-check-circle-fill") flex-shrink-0"></i>
+    <span>
+        @ViewBag.SystemMessage
+        @if (isLowStock)
+        {
+            <a asp-controller="Products" asp-action="Index" class="alert-link ms-1 fw-semibold">View inventory &rarr;</a>
+        }
+    </span>
 </div>
 
-<div class="row g-4">
+<!-- KPI Cards -->
+<div class="row g-3 mb-4">
 
-    <div class="col-md-3">
-        <div class="card shadow-sm">
-            <div class="card-body">
-                <h6>Total Sales</h6>
-                <h4>₹ @ViewBag.TotalSales</h4>
+    <!-- Total Revenue -->
+    <div class="col-6 col-md-3">
+        <div class="card border rounded-3 h-100 p-3">
+            <div class="d-flex align-items-center gap-3">
+                <div class="rounded-3 d-flex align-items-center justify-content-center flex-shrink-0"
+                     style="width:44px;height:44px;background:#e8f0fe;">
+                    <i class="bi bi-currency-rupee text-primary fs-5"></i>
+                </div>
+                <div class="overflow-hidden">
+                    <div class="text-muted small mb-1">Total Revenue</div>
+                    <div class="fw-bold fs-5 lh-1">₹ @ViewBag.TotalSales</div>
+                    <div class="text-muted" style="font-size:.78rem">@salesCount sales</div>
+                </div>
             </div>
         </div>
     </div>
 
-    <div class="col-md-3">
-        <div class="card shadow-sm">
-            <div class="card-body">
-                <h6>Monthly Revenue</h6>
-                <h4>₹ @ViewBag.MonthlyRevenue</h4>
+    <!-- This Month -->
+    <div class="col-6 col-md-3">
+        <div class="card border rounded-3 h-100 p-3">
+            <div class="d-flex align-items-center gap-3">
+                <div class="rounded-3 d-flex align-items-center justify-content-center flex-shrink-0"
+                     style="width:44px;height:44px;background:#e6f4ea;">
+                    <i class="bi bi-calendar3 text-success fs-5"></i>
+                </div>
+                <div class="overflow-hidden">
+                    <div class="text-muted small mb-1">This Month</div>
+                    <div class="fw-bold fs-5 lh-1">₹ @ViewBag.MonthlyRevenue</div>
+                    <div class="text-muted" style="font-size:.78rem">@DateTime.Now.ToString("MMMM yyyy")</div>
+                </div>
             </div>
         </div>
     </div>
 
-    <div class="col-md-3">
-        <div class="card shadow-sm">
-            <div class="card-body">
-                <h6>Low Stock Items</h6>
-                <h4>@ViewBag.LowStockCount</h4>
+    <!-- Products -->
+    <div class="col-6 col-md-3">
+        <div class="card border rounded-3 h-100 p-3">
+            <div class="d-flex align-items-center gap-3">
+                <div class="rounded-3 d-flex align-items-center justify-content-center flex-shrink-0"
+                     style="width:44px;height:44px;background:@(isLowStock ? "#fff8e1" : "#e3f2fd");">
+                    <i class="bi bi-box-seam @(isLowStock ? "text-warning" : "text-info") fs-5"></i>
+                </div>
+                <div class="overflow-hidden">
+                    <div class="text-muted small mb-1">Products</div>
+                    <div class="fw-bold fs-5 lh-1">@totalProducts</div>
+                    <div style="font-size:.78rem">
+                        @if (isLowStock)
+                        {
+                            <span class="text-warning fw-semibold">@lowStock low stock</span>
+                        }
+                        else
+                        {
+                            <span class="text-muted">All stocked</span>
+                        }
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
-    <div class="col-md-3">
-        <div class="card shadow-sm">
-            <div class="card-body">
-                <h6>Total Customers</h6>
-                <h4>@ViewBag.TotalCustomers</h4>
+    <!-- Customers -->
+    <div class="col-6 col-md-3">
+        <div class="card border rounded-3 h-100 p-3">
+            <div class="d-flex align-items-center gap-3">
+                <div class="rounded-3 d-flex align-items-center justify-content-center flex-shrink-0"
+                     style="width:44px;height:44px;background:#f3e8ff;">
+                    <i class="bi bi-people fs-5" style="color:#7c3aed"></i>
+                </div>
+                <div class="overflow-hidden">
+                    <div class="text-muted small mb-1">Customers</div>
+                    <div class="fw-bold fs-5 lh-1">@totalCustomers</div>
+                    <div class="text-muted" style="font-size:.78rem">registered</div>
+                </div>
             </div>
         </div>
     </div>
 
 </div>
+
+<!-- Recent Sales -->
+<div class="card border rounded-3">
+    <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center py-3 px-4">
+        <span class="fw-semibold"><i class="bi bi-clock-history me-2 text-muted"></i>Recent Sales</span>
+        <a asp-controller="Sales" asp-action="Index" class="btn btn-sm btn-outline-secondary">
+            View All &rarr;
+        </a>
+    </div>
+    <div class="card-body p-0">
+        @if (!recentSales.Any())
+        {
+            <div class="text-center py-5 text-muted">
+                <i class="bi bi-receipt fs-1 d-block mb-2 opacity-25"></i>
+                <p class="mb-0">No sales yet.</p>
+                <a asp-controller="Sales" asp-action="Create" class="btn btn-primary btn-sm mt-3">Create the first sale</a>
+            </div>
+        }
+        else
+        {
+            <table class="table table-hover align-middle mb-0">
+                <thead style="background:#f8f9fa; font-size:.82rem; text-transform:uppercase; letter-spacing:.04em; color:#6c757d;">
+                    <tr>
+                        <th class="ps-4 py-2 border-0">#</th>
+                        <th class="py-2 border-0">Date</th>
+                        <th class="py-2 border-0">Customer</th>
+                        <th class="py-2 border-0 text-end pe-4">Amount</th>
+                        <th class="py-2 border-0 text-center">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var sale in recentSales)
+                    {
+                        <tr>
+                            <td class="ps-4 text-muted small">#@sale.Id</td>
+                            <td class="small">@sale.SaleDate.ToString("dd MMM yyyy")</td>
+                            <td>
+                                <span class="d-inline-flex align-items-center gap-2">
+                                    <span class="rounded-circle bg-secondary bg-opacity-10 d-inline-flex align-items-center justify-content-center"
+                                          style="width:28px;height:28px;font-size:.72rem;font-weight:600;color:#495057">
+                                        @sale.CustomerName.Substring(0, 1).ToUpper()
+                                    </span>
+                                    @sale.CustomerName
+                                </span>
+                            </td>
+                            <td class="text-end pe-4 fw-semibold">&#8377;&thinsp;@(sale.TotalAmount.ToString("N2"))</td>
+                            <td class="text-center">
+                                <a asp-controller="Sales" asp-action="Details" asp-route-id="@sale.Id"
+                                   class="btn btn-sm btn-outline-secondary py-0 px-2">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
+</div>
+</div>
+

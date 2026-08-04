@@ -11,14 +11,9 @@ using Rotativa.AspNetCore.Options;
 
 namespace MiniERPsystem.Controllers
 {
-    public class ReportsController : Controller
+    public class ReportsController : BaseController
     {
-        private readonly ApplicationDbContext _context;
-
-        public ReportsController(ApplicationDbContext context)
-        {
-            _context = context;
-        }
+        public ReportsController(ApplicationDbContext context) : base(context) { }
         public IActionResult DailySales()
         {
             var dailySales = _context.Sales
@@ -164,6 +159,13 @@ namespace MiniERPsystem.Controllers
 
             ViewBag.FromDate = fromDate?.ToString("dd-MM-yyyy");
             ViewBag.ToDate = toDate?.ToString("dd-MM-yyyy");
+
+            var wkhtmlPath = @"C:\Program Files\wkhtmltopdf\bin";
+            if (!Directory.Exists(wkhtmlPath))
+            {
+                TempData["Error"] = "PDF export requires wkhtmltopdf to be installed. Download it from https://wkhtmltopdf.org";
+                return RedirectToAction("DateRangeSales", new { fromDate, toDate });
+            }
 
             return new ViewAsPdf("DateRangeSalesPdf", data)
             {

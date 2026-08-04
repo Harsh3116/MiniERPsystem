@@ -12,3 +12,8 @@ appsettings.Development.json
 
 ## Logs
 *.log
+
+## SQLite database files
+*.db
+*.db-shm
+*.db-wal

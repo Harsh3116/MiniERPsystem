@@ -1,8 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MiniERPsystem.Data;
 using MiniERPsystem.Models;
-using System.Linq;   // ✅ REQUIRED
-using System;        // ✅ REQUIRED
+using MiniERPsystem.Helpers;
+using MiniERPsystem.Services;
+using System.Linq;
+using System;
 
 namespace MiniERPsystem
 {
@@ -13,10 +15,11 @@ namespace MiniERPsystem
             var builder = WebApplication.CreateBuilder(args);
 
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(
+                options.UseSqlite(
                     builder.Configuration.GetConnectionString("DefaultConnection")));
 
             builder.Services.AddControllersWithViews();
+            builder.Services.AddScoped<AiInsightsService>();
 
             builder.Services.AddSession(options =>
             {
@@ -34,6 +37,9 @@ namespace MiniERPsystem
             {
                 var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
+                // Create SQLite database from model
+                db.Database.EnsureCreated();
+
                 // Seed demo data
                 SeedData.Initialize(db);
 
@@ -44,14 +50,13 @@ namespace MiniERPsystem
                     {
                         FullName = "Admin",
                         Email = "admin@erp.com",
-                        Password = "admin123",
+                        Password = PasswordHelper.Hash("admin123"),
                         Role = "Admin"
                     });
 
                     db.SaveChanges();
                 }
             }
-            builder.Services.AddSession();
             app.UseStaticFiles();
             app.UseRouting();
             app.UseSession();
@@ -60,10 +65,16 @@ namespace MiniERPsystem
             app.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Account}/{action=Login}/{id?}");
-            Rotativa.AspNetCore.RotativaConfiguration.Setup(
-    builder.Environment.WebRootPath,
-    @"C:\Program Files\wkhtmltopdf\bin"
-);
+
+            var wkhtmlPath = @"C:\Program Files\wkhtmltopdf\bin";
+            if (Directory.Exists(wkhtmlPath))
+            {
+                Rotativa.AspNetCore.RotativaConfiguration.Setup(
+                    builder.Environment.WebRootPath,
+                    wkhtmlPath
+                );
+            }
+
             app.Run();
         }
     }

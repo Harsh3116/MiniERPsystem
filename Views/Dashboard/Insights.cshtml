@@ -1,0 +1,236 @@
+@using MiniERPsystem.Services
+@model InsightsDashboard
+
+@{
+    ViewData["Title"] = "AI Insights";
+
+    string TrendIcon  = Model.RevenueTrend == "up"   ? "bi-arrow-up-circle-fill text-success"
+                      : Model.RevenueTrend == "down" ? "bi-arrow-down-circle-fill text-danger"
+                      : "bi-dash-circle-fill text-secondary";
+
+    string CardBg(string s) => s switch {
+        "success" => "#f0fdf4", "warning" => "#fffbeb",
+        "danger"  => "#fef2f2", _         => "#eff6ff"
+    };
+    string CardBorder(string s) => s switch {
+        "success" => "#86efac", "warning" => "#fde68a",
+        "danger"  => "#fca5a5", _         => "#bfdbfe"
+    };
+    string CardIconColor(string s) => s switch {
+        "success" => "#16a34a", "warning" => "#d97706",
+        "danger"  => "#dc2626", _         => "#2563eb"
+    };
+}
+
+<!-- Header -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h4 class="fw-semibold mb-0">
+            <i class="bi bi-stars me-2 text-warning"></i>AI Business Insights
+        </h4>
+        <small class="text-muted">Powered by your sales & inventory data &nbsp;&bull;&nbsp; @DateTime.Now.ToString("dd MMM yyyy, HH:mm")</small>
+    </div>
+    <a asp-action="Index" class="btn btn-sm btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i> Dashboard
+    </a>
+</div>
+
+<!-- Revenue KPI row -->
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="card border rounded-3 p-3">
+            <div class="text-muted small mb-1">This Month Revenue</div>
+            <div class="fw-bold fs-4">&#8377;&thinsp;@Model.CurrentMonthRevenue.ToString("N0")</div>
+            <div class="d-flex align-items-center gap-1 mt-1" style="font-size:.85rem">
+                <i class="bi @TrendIcon"></i>
+                @if (Model.LastMonthRevenue > 0)
+                {
+                    <span class="@(Model.RevenueTrend == "up" ? "text-success" : Model.RevenueTrend == "down" ? "text-danger" : "text-muted")">
+                        @(Model.RevenueChangePct > 0 ? "+" : "")@Model.RevenueChangePct% vs last month
+                    </span>
+                }
+                else { <span class="text-muted">No prior data</span> }
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border rounded-3 p-3">
+            <div class="text-muted small mb-1">Last Month Revenue</div>
+            <div class="fw-bold fs-4">&#8377;&thinsp;@Model.LastMonthRevenue.ToString("N0")</div>
+            <div class="text-muted mt-1" style="font-size:.85rem">@Model.TotalSalesLastMonth orders</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border rounded-3 p-3">
+            <div class="text-muted small mb-1">Orders This Month</div>
+            <div class="fw-bold fs-4">@Model.TotalSalesThisMonth</div>
+            <div class="text-muted mt-1" style="font-size:.85rem">
+                @{
+                    int orderDiff = Model.TotalSalesThisMonth - Model.TotalSalesLastMonth;
+                }
+                @(orderDiff >= 0 ? "+" : "")@orderDiff vs last month
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+
+    <!-- LEFT COLUMN: Insight Cards -->
+    <div class="col-lg-5">
+        <h6 class="fw-semibold mb-3 text-muted text-uppercase" style="font-size:.75rem;letter-spacing:.06em">
+            <i class="bi bi-cpu me-1"></i> Smart Recommendations
+        </h6>
+
+        @if (!Model.Cards.Any())
+        {
+            <p class="text-muted small">No insights available yet. Add more sales data.</p>
+        }
+
+        @foreach (var card in Model.Cards)
+        {
+            <div class="rounded-3 p-3 mb-3 d-flex gap-3 align-items-start"
+                 style="background:@CardBg(card.Severity); border:1.5px solid @CardBorder(card.Severity);">
+                <i class="bi @card.Icon flex-shrink-0 fs-5 mt-1" style="color:@CardIconColor(card.Severity)"></i>
+                <div>
+                    <div class="fw-semibold" style="font-size:.9rem; color:#1e293b;">@card.Title</div>
+                    <div class="text-muted mt-1" style="font-size:.83rem;">@card.Body</div>
+                    @if (card.ActionUrl != null)
+                    {
+                        <a href="@card.ActionUrl" class="mt-2 d-inline-block fw-semibold"
+                           style="font-size:.82rem; color:@CardIconColor(card.Severity)">
+                            @card.ActionLabel &rarr;
+                        </a>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- RIGHT COLUMN: Charts & Tables -->
+    <div class="col-lg-7">
+
+        <!-- Top Sellers -->
+        <div class="card border rounded-3 mb-4">
+            <div class="card-header bg-white border-bottom py-3 px-4">
+                <span class="fw-semibold"><i class="bi bi-trophy me-2 text-warning"></i>Top Selling Products (Last 30 Days)</span>
+            </div>
+            <div class="card-body px-4 py-3">
+                @if (!Model.TopSellers.Any())
+                {
+                    <p class="text-muted small mb-0">No sales data in the last 30 days.</p>
+                }
+                @foreach (var (seller, i) in Model.TopSellers.Select((s, i) => (s, i)))
+                {
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1" style="font-size:.88rem">
+                            <span>
+                                @if (i == 0) { <i class="bi bi-trophy-fill text-warning me-1"></i> }
+                                else if (i == 1) { <i class="bi bi-trophy text-secondary me-1"></i> }
+                                <strong>@seller.ProductName</strong>
+                            </span>
+                            <span class="text-muted">@seller.UnitsSold units &nbsp;&bull;&nbsp; &#8377;@seller.Revenue.ToString("N0")</span>
+                        </div>
+                        <div class="rounded-pill" style="height:8px;background:#e2e8f0">
+                            <div class="rounded-pill" style="height:8px;width:@seller.BarWidth%;background:@(i==0?"#f59e0b":i==1?"#94a3b8":"#3b82f6");transition:width .5s"></div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Stock Health -->
+        @if (Model.StockAlerts.Any())
+        {
+            <div class="card border rounded-3 mb-4">
+                <div class="card-header bg-white border-bottom py-3 px-4">
+                    <span class="fw-semibold"><i class="bi bi-boxes me-2 text-danger"></i>Stock Health Alerts</span>
+                </div>
+                <div class="card-body p-0">
+                    <table class="table table-hover mb-0" style="font-size:.87rem">
+                        <thead>
+                            <tr>
+                                <th class="ps-4">Product</th>
+                                <th class="text-center">Stock</th>
+                                <th class="text-center">Sold (30d)</th>
+                                <th class="text-center">Est. Days Left</th>
+                                <th class="text-center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var a in Model.StockAlerts)
+                            {
+                                string badgeClass = a.Urgency switch {
+                                    "critical" => "bg-danger",
+                                    "high"     => "bg-warning text-dark",
+                                    _          => "bg-info text-dark"
+                                };
+                                <tr>
+                                    <td class="ps-4 fw-semibold">@a.ProductName</td>
+                                    <td class="text-center">
+                                        <span class="badge @(a.CurrentStock <= 5 ? "bg-danger" : "bg-secondary")">@a.CurrentStock</span>
+                                    </td>
+                                    <td class="text-center text-muted">@a.SoldLast30Days</td>
+                                    <td class="text-center">
+                                        @if (a.DaysRemaining == -1)
+                                        { <span class="text-muted">N/A</span> }
+                                        else
+                                        { <span class="badge @badgeClass">~@a.DaysRemaining days</span> }
+                                    </td>
+                                    <td class="text-center">
+                                        <a asp-controller="Products" asp-action="Index" class="btn btn-sm btn-outline-warning py-0">Reorder</a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        }
+
+        <!-- Top Customers -->
+        <div class="card border rounded-3">
+            <div class="card-header bg-white border-bottom py-3 px-4">
+                <span class="fw-semibold"><i class="bi bi-people me-2 text-primary"></i>Top Customers by Revenue</span>
+            </div>
+            <div class="card-body p-0">
+                @if (!Model.TopCustomers.Any())
+                {
+                    <p class="text-muted small p-4 mb-0">No customer data yet.</p>
+                }
+                else
+                {
+                    <table class="table table-hover mb-0" style="font-size:.87rem">
+                        <thead>
+                            <tr>
+                                <th class="ps-4">Customer</th>
+                                <th class="text-center">Orders</th>
+                                <th class="text-end pe-4">Total Spent</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var (c, idx) in Model.TopCustomers.Select((x, i) => (x, i)))
+                            {
+                                <tr>
+                                    <td class="ps-4">
+                                        <span class="d-inline-flex align-items-center gap-2">
+                                            <span class="rounded-circle d-inline-flex align-items-center justify-content-center fw-bold"
+                                                  style="width:30px;height:30px;font-size:.75rem;background:@(idx==0?"#fef3c7":"#e0f2fe");color:@(idx==0?"#92400e":"#0369a1")">
+                                                @c.Initial
+                                            </span>
+                                            @c.CustomerName
+                                            @if (idx == 0) { <span class="badge bg-warning text-dark" style="font-size:.7rem">Top</span> }
+                                        </span>
+                                    </td>
+                                    <td class="text-center text-muted">@c.OrderCount</td>
+                                    <td class="text-end pe-4 fw-semibold">&#8377;&thinsp;@c.TotalSpent.ToString("N0")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+            </div>
+        </div>
+
+    </div>
+</div>

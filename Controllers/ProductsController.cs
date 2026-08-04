@@ -91,17 +91,35 @@ namespace MiniERPsystem.Controllers
         public async Task<IActionResult> Create([Bind("Id,ProductName,Price,StockQuantity")] Product product)
         {
             if (HttpContext.Session.GetString("UserRole") != "Admin")
-            {
                 return RedirectToAction("AccessDenied", "Account");
-            }
-            if (ModelState.IsValid)
+
+            if (!ModelState.IsValid)
+                return View(product);
+
+            // Check if a product with the same name already exists (case-insensitive)
+            var existing = _context.Products
+                .FirstOrDefault(p => p.ProductName.ToLower() == product.ProductName.ToLower());
+
+            if (existing != null)
             {
+                // Restore and top-up stock instead of creating a duplicate
+                existing.StockQuantity += product.StockQuantity;
+                existing.Price     = product.Price;  // update price too
+                existing.IsActive  = true;            // restore if soft-deleted
+                await _context.SaveChangesAsync();
+                LogActivity($"Restocked product: {existing.ProductName} (+{product.StockQuantity} units)");
+                TempData["Success"] = $"\"{ existing.ProductName}\" already exists — stock updated to {existing.StockQuantity} units.";
+            }
+            else
+            {
+                product.IsActive = true;
                 _context.Add(product);
                 await _context.SaveChangesAsync();
                 LogActivity("Created product: " + product.ProductName);
-                return RedirectToAction(nameof(Index));
+                TempData["Success"] = $"Product \"{product.ProductName}\" created successfully.";
             }
-            return View(product);
+
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: Products/Edit/5
@@ -143,6 +161,7 @@ namespace MiniERPsystem.Controllers
                     _context.Update(product);
                     await _context.SaveChangesAsync();
                     LogActivity("Edited product: " + product.ProductName);
+                    TempData["Success"] = $"Product \"{product.ProductName}\" updated successfully.";
 
                 }
                 catch (DbUpdateConcurrencyException)
@@ -201,6 +220,7 @@ namespace MiniERPsystem.Controllers
             _context.SaveChanges();
 
             LogActivity($"Soft deleted product: {product.ProductName}");
+            TempData["Success"] = $"Product \"{product.ProductName}\" moved to deleted.";
 
             return RedirectToAction(nameof(Index));
         }
@@ -284,6 +304,7 @@ namespace MiniERPsystem.Controllers
             _context.SaveChanges();
 
             LogActivity($"Restored product: {product.ProductName}");
+            TempData["Success"] = $"Product \"{product.ProductName}\" restored successfully.";
 
             return RedirectToAction(nameof(Deleted));
         }

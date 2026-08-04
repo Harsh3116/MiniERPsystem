@@ -34,26 +34,38 @@
     @if (Context.Session.GetString("UserName") != null)
 {
     <!-- TOP NAVBAR -->
-    <nav class="navbar navbar-dark fixed-top bg-dark px-3">
-        <button class="btn btn-outline-light me-3" id="sidebarToggle">☰</button>
-        <span class="navbar-brand">Mini ERP</span>
-        <span class="text-white">
-            Welcome, @Context.Session.GetString("UserName")
+    <nav class="navbar navbar-dark fixed-top bg-dark px-3 d-flex align-items-center gap-2">
+        <button class="btn btn-outline-light me-2" id="sidebarToggle">&#9776;</button>
+        <span class="navbar-brand mb-0 me-auto">
+            <i class="bi bi-grid-3x3-gap-fill me-1"></i> Mini ERP
+        </span>
+        <span class="text-white small me-2">
+            Welcome, <a asp-controller="Account" asp-action="Profile"
+                        class="text-white fw-bold text-decoration-none"
+                        style="border-bottom:1px dashed rgba(255,255,255,.4)"
+                        title="Edit your profile">@Context.Session.GetString("UserName")</a>
+        </span>
+        <span class="badge @(userRole == "Admin" ? "bg-warning text-dark" : "bg-info text-dark") me-2">
+            @userRole
         </span>
     </nav>
-        <span class="text-warning ms-3">
-            ROLE: @userRole
-        </span>
 
 
     <!-- SIDEBAR -->
     <div class="sidebar pt-5">
 
         <!-- DASHBOARD -->
-            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Dashboard" ? "active" : "")"
+            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Dashboard" && ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "active" : "")"
                asp-controller="Dashboard"
                asp-action="Index">
-                <span>Dashboard</span>
+                <i class="bi bi-speedometer2 me-2"></i><span>Dashboard</span>
+            </a>
+
+            <!-- AI INSIGHTS -->
+            <a class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Insights" ? "active" : "")"
+               asp-controller="Dashboard"
+               asp-action="Insights">
+                <i class="bi bi-stars me-2 text-warning"></i><span>AI Insights</span>
             </a>
 
 
@@ -225,6 +237,12 @@
             }
         <!-- LOGOUT -->
             <a asp-controller="Account"
+               asp-action="Profile"
+               class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Profile" ? "active" : "")">
+                <i class="bi bi-person-circle me-2"></i>
+                <span>My Profile</span>
+            </a>
+            <a asp-controller="Account"
                asp-action="Logout"
                class="btn btn-outline-danger btn-sm">
                 Logout
@@ -232,6 +250,33 @@
 
     </div>
 }
+
+    <!-- TOAST NOTIFICATIONS -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index:9999">
+        @if (TempData["Success"] != null)
+        {
+            <div id="successToast" class="toast align-items-center text-bg-success border-0" role="alert">
+                <div class="d-flex">
+                    <div class="toast-body fw-semibold">
+                        <i class="bi bi-check-circle-fill me-2"></i>@TempData["Success"]
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                </div>
+            </div>
+        }
+        @if (TempData["Error"] != null)
+        {
+            <div id="errorToast" class="toast align-items-center text-bg-danger border-0" role="alert">
+                <div class="d-flex">
+                    <div class="toast-body fw-semibold">
+                        <i class="bi bi-x-circle-fill me-2"></i>@TempData["Error"]
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                </div>
+            </div>
+        }
+    </div>
+
     <!-- MAIN CONTENT -->
     <main class="content pt-5">
         @RenderBody()
@@ -246,7 +291,16 @@
                 document.querySelector(".content")
                     .classList.toggle("expanded");
             });
+        // Auto-show all toasts with 4s auto-dismiss
+        document.querySelectorAll('.toast').forEach(function (el) {
+            new bootstrap.Toast(el, { delay: 4000 }).show();
+        });
     </script>
+
+    <!-- FOOTER -->
+    <footer class="content py-3 border-top text-center text-muted small" style="background:#f8fafc">
+        Mini ERP System &copy; @DateTime.Now.Year &nbsp;&mdash;&nbsp; Built with ASP.NET Core MVC &amp; SQLite
+    </footer>
 
 </body>
 </html>

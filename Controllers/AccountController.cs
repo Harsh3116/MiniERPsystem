@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MiniERPsystem.Models;
 using MiniERPsystem.Data;
+using MiniERPsystem.Helpers;
 using System.Linq;
 using Microsoft.AspNetCore.Http;
 namespace MiniERPsystem.Controllers
@@ -31,7 +32,7 @@ namespace MiniERPsystem.Controllers
         {
             var user = _context.Users.FirstOrDefault(u =>
                 u.Email == email &&
-                u.Password == password &&
+                u.Password == PasswordHelper.Hash(password) &&
                 u.Role == role
             );
 
@@ -94,12 +95,12 @@ namespace MiniERPsystem.Controllers
                 return View();
             }
 
-            // 3️⃣ Save user
+            user.Password = PasswordHelper.Hash(user.Password);
             _context.Users.Add(user);
             _context.SaveChanges();
 
-            ViewBag.Success = "User created successfully!";
-            return View();
+            TempData["Success"] = "User created successfully!";
+            return RedirectToAction("Users");
         }
 
         public IActionResult Logout()
@@ -206,6 +207,66 @@ namespace MiniERPsystem.Controllers
         public IActionResult AccessDenied()
         {
             return View();
+        }
+
+        // ── PROFILE ──────────────────────────────────────────────────────
+        [HttpGet]
+        public IActionResult Profile()
+        {
+            var email = HttpContext.Session.GetString("UserEmail");
+            var user  = _context.Users.FirstOrDefault(u => u.Email == email);
+            if (user == null) return RedirectToAction("Login");
+            return View(user);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Profile(string fullName, string email, string? newPassword, string? confirmPassword)
+        {
+            var currentEmail = HttpContext.Session.GetString("UserEmail");
+            var user = _context.Users.FirstOrDefault(u => u.Email == currentEmail);
+            if (user == null) return RedirectToAction("Login");
+
+            if (string.IsNullOrWhiteSpace(fullName) || string.IsNullOrWhiteSpace(email))
+            {
+                TempData["Error"] = "Name and email are required.";
+                return RedirectToAction("Profile");
+            }
+
+            // Check email not taken by another account
+            if (email != currentEmail && _context.Users.Any(u => u.Email == email))
+            {
+                TempData["Error"] = "That email is already used by another account.";
+                return RedirectToAction("Profile");
+            }
+
+            // Password change
+            if (!string.IsNullOrWhiteSpace(newPassword))
+            {
+                if (newPassword != confirmPassword)
+                {
+                    TempData["Error"] = "Passwords do not match.";
+                    return RedirectToAction("Profile");
+                }
+                if (newPassword.Length < 6)
+                {
+                    TempData["Error"] = "Password must be at least 6 characters.";
+                    return RedirectToAction("Profile");
+                }
+                user.Password = PasswordHelper.Hash(newPassword);
+            }
+
+            user.FullName = fullName.Trim();
+            user.Email    = email.Trim();
+            _context.SaveChanges();
+
+            // Refresh session
+            HttpContext.Session.SetString("UserName",  user.FullName);
+            HttpContext.Session.SetString("UserEmail", user.Email);
+
+            LogActivity("Updated profile");
+            TempData["Success"] = "Profile updated successfully.";
+            return RedirectToAction("Profile");
         }
 
 
